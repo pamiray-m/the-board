@@ -1,24 +1,75 @@
-# The Board 🧭
+<h1 align="center">The Board 🧭</h1>
 
-**Convene a panel of expert archetypes to pressure-test any decision — and get a clear `PROCEED` / `CONCERN` / `BLOCK` verdict with reasons.**
+<p align="center">
+  <b>Convene a panel of expert archetypes to pressure-test any decision —<br>
+  and get a clear <code>PROCEED</code> / <code>CONCERN</code> / <code>BLOCK</code> verdict with reasons.</b>
+</p>
 
-The Board is an open-source [Claude](https://claude.com/claude-code) skill. When you face a
-judgment call — *should we build this? ship this? fund this? kill this?* — it convenes a panel
-of opinionated expert **archetypes**, has each one review the decision from its own lens, and
-aggregates their votes into a single, honest verdict.
-
-> The board is made of **composite advisory archetypes** — *The Strategist, The CFO, The Safety
-> Reviewer, The Contrarian,* and friends. **It never impersonates real, named people.** That's a
-> deliberate design choice: you get the diversity of perspective without putting words in any real
-> person's mouth.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/Claude-skill-8A63D2" alt="Claude skill">
+  <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python 3.8+">
+  <img src="https://img.shields.io/badge/deps-stdlib%20only-brightgreen" alt="stdlib only">
+  <a href="https://github.com/pamiray-m/the-board/stargazers"><img src="https://img.shields.io/github/stars/pamiray-m/the-board?style=social" alt="Stars"></a>
+</p>
 
 ---
 
+Most AI assistants hand you **one confident answer**. Important decisions deserve **structured
+disagreement**. The Board is an open-source [Claude](https://claude.com/claude-code) skill that
+spins up a panel of opinionated expert *archetypes*, has each one review your decision from its
+own lens, and aggregates their votes into a single, honest call — a pre-mortem, a red-team, and a
+go/no-go in one pass.
+
+> The board is made of **composite advisory archetypes** — *The Strategist, The CFO, The Safety
+> Reviewer, The Contrarian,* and friends. **It never impersonates real, named people.** That's a
+> deliberate choice: the diversity of perspective, none of the likeness problems.
+
+## See it in action
+
+> **You:** *"Get the board's take: should we rewrite our monolith as microservices?"*
+
+```
+# Board verdict: BLOCK  (confidence 0.73)
+
+Tally — PROCEED: 0  CONCERN: 4  BLOCK: 1  (5 members)
+
+- frontier_scientist:  CONCERN (0.70) — Microservices aren't novel — the real question is whether
+                                        your scaling pain demands them or you're chasing fashion.
+- research_skeptic:    CONCERN (0.72) — Sound only if boundaries are clear; otherwise you trade fast
+                                        in-process calls for slow network calls and distributed debugging.
+- systems_architect:   CONCERN (0.75) — A big-bang rewrite is the highest-risk path — huge operational
+                                        burden before proving any value.
+- safety_reviewer:     CONCERN (0.68) — A full rewrite is hard to reverse; risk a multi-quarter stall.
+- contrarian:          BLOCK   (0.80) — Pre-mortem: a year later it's 70% done, both systems run in
+                                        parallel, velocity cratered — and the "scaling problem" was one
+                                        unindexed query.
+
+Conditions to revisit:
+  - Name the specific scaling limit the monolith cannot meet.
+  - Use a strangler-fig: extract incrementally behind the live system.
+  - First prove the bottleneck is architectural, not a few hot paths.
+```
+
+One dissent (`BLOCK`) is enough to gate the call — and you get the *why*, the risks, and the
+conditions that would turn it into a `PROCEED`.
+
 ## Why
 
-Most AI assistants give you one confident answer. Important decisions deserve **structured
-disagreement**. The Board makes the strongest version of a decision survive the strongest
-objections — a pre-mortem, a red-team, and a go/no-go in one pass.
+- **Kills false confidence** — opposed lenses surface the risk the cheerleader misses.
+- **Built-in pre-mortem** — The Contrarian steelmans the failure *before* you commit.
+- **One honest verdict** — deterministic aggregation, not vibes: any `BLOCK` → BLOCK; majority
+  `CONCERN` → CONCERN; else PROCEED.
+
+## Install
+
+```bash
+git clone https://github.com/pamiray-m/the-board.git
+mkdir -p ~/.claude/skills && cp -R the-board ~/.claude/skills/the-board
+```
+
+That's it. Claude auto-discovers the skill and invokes it whenever you ask for a decision review,
+a second opinion, a pre-mortem, or a go/no-go — or just say *"get the board's take on X."*
 
 ## The archetypes
 
@@ -37,23 +88,13 @@ objections — a pre-mortem, a red-team, and a go/no-go in one pass.
 | The Customer Advocate | End-user experience & trust |
 | The Contrarian | Pre-mortem & steelman the failure |
 
-## Install
-
-Drop the skill into your Claude Code skills directory:
-
-```bash
-git clone https://github.com/<your-org>/the-board.git
-mkdir -p ~/.claude/skills
-cp -R the-board ~/.claude/skills/the-board
-```
-
-Claude will discover it automatically and invoke it when you ask for a decision review,
-a second opinion, a pre-mortem, or a go/no-go. You can also just ask: *"Get the board's take on X."*
+The right subset is convened automatically per decision type (`general` · `venture` · `technical`
+· `launch` · `risk` · `all`).
 
 ## Use it directly (CLI)
 
-The skill works through three deterministic helpers — the reasoning is done by the model, the
-routing and tallying by the script:
+The skill works through three small, dependency-free helpers — the *reasoning* is the model's, the
+*routing and tallying* are the script's:
 
 ```bash
 # 1. See the panel + each archetype's doctrine for a decision
@@ -68,16 +109,10 @@ python3 scripts/board.py aggregate --file verdicts.json
 python3 scripts/board.py roster
 ```
 
-**Decision types:** `general` (default) · `venture` · `technical` · `launch` · `risk` · `all`
-(aliases like `gtm`, `architecture`, `safety` work too).
-
-**Aggregation rules (deterministic):** any `BLOCK` → BLOCK · strict majority `CONCERN`-or-worse
-→ CONCERN · otherwise PROCEED. Confidence is the mean of member confidences.
-
 ## Customize
 
-This is your board. Add archetypes to [`data/archetypes.json`](data/archetypes.json) or new panels
-to [`data/routing.json`](data/routing.json) to fit your org. One rule we'd ask you to keep:
+This is *your* board. Add archetypes in [`data/archetypes.json`](data/archetypes.json) or new
+panels in [`data/routing.json`](data/routing.json) to fit your org. One rule we'd ask you to keep:
 **archetypes, not real people.**
 
 ## Tests
@@ -88,10 +123,12 @@ python3 -m pytest tests/ -q
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). PRs welcome: new archetypes, panels, and translations especially.
 
 ---
 
-*The Board is an open-source skill from [AOS-1](https://aos-1.com) — an operating system for
-trustworthy, governed AI. Multi-perspective decision review is the same discipline AOS-1 applies
-to autonomous agents in production. Questions: support@aos-1.com*
+<p align="center">
+  <i>The Board is an open-source skill from <a href="https://aos-1.com">AOS-1</a> — an operating
+  system for trustworthy, governed AI.<br>Multi-perspective decision review is the same discipline
+  AOS-1 applies to autonomous agents in production. · support@aos-1.com</i>
+</p>
