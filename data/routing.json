@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Maps a decision type to the subset of archetypes best suited to review it. 'all' convenes the full board.",
+  "default": "general",
+  "panels": {
+    "general": {
+      "label": "Balanced go/no-go panel",
+      "members": ["strategist", "ruthless_operator", "safety_reviewer", "cfo", "contrarian"]
+    },
+    "venture": {
+      "label": "New product / venture / business idea",
+      "members": ["frontier_scientist", "ruthless_operator", "strategist", "cfo", "product_truth_teller"]
+    },
+    "technical": {
+      "label": "Technical approach / architecture / model design",
+      "members": ["research_skeptic", "systems_architect", "safety_reviewer", "frontier_scientist", "contrarian"]
+    },
+    "launch": {
+      "label": "Launch / go-to-market / release",
+      "members": ["ruthless_operator", "growth_lead", "customer_advocate", "strategist", "compliance_counsel"]
+    },
+    "risk": {
+      "label": "Risk / safety / compliance review",
+      "members": ["safety_reviewer", "compliance_counsel", "contrarian", "systems_architect"]
+    }
+  },
+  "aliases": {
+    "business": "venture",
+    "product": "venture",
+    "idea": "venture",
+    "startup": "venture",
+    "architecture": "technical",
+    "engineering": "technical",
+    "design": "technical",
+    "model": "technical",
+    "gtm": "launch",
+    "release": "launch",
+    "marketing": "launch",
+    "safety": "risk",
+    "security": "risk",
+    "legal": "risk",
+    "compliance": "risk",
+    "decision": "general",
+    "strategy": "general"
+  }
+}

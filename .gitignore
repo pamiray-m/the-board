@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Working files produced during a consultation
+verdicts.json
+*.verdicts.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
